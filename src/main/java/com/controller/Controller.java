@@ -9,35 +9,33 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Controller {
-    public static void main(String[] args) {
-        Controller controller = new Controller ();
-        TaskList model = new LinkedTaskList();
-        MainForm view = new MainForm ();
+public class Controller implements ActionListener {
 
-        controller.setModel(model);
-        controller.setView(view);
-
-        Task task = new Task ("football", new Date());
-        model.add (task);
-
-    }
-
-    protected static TaskList model;
-    protected static MainForm view;
+    private TaskList model;
+    private View view;
 
     public void setModel (TaskList model) {
-
-        Controller.model = model;
-
+        this.model = model;
     }
 
 
     public void setView (MainForm view) {
-        Controller.view = view;
+        this.view = view;
+        this.view.addActionListener (this);
+        this.view.updateAllTasksArea (this.model);
+    }
 
-        ActionController.addNewTaskButtonListener();
+    public void actionPerformed (ActionEvent event) {
+        View view = (View) event.getSource();
 
-        Controller.view.updateAllTasksArea (Controller.model);
+        if( event.getActionCommand().equals (View.ACTION_CLOSE) ) {
+            view.close ();
+            System.exit (0);
+        }
+
+        if (event.getActionCommand().equals(View.ACTION_UPDATE)) {
+            view.updateAllTasksArea(this.model);
+            System.out.println ("ok");
+        }
     }
 }
