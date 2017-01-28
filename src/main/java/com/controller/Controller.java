@@ -19,10 +19,11 @@ public class Controller implements ActionListener {
     }
 
 
-    public void setView (MainForm view) {
+    public void setView (View view) {
         this.view = view;
         this.view.addActionListener (this);
-        this.view.updateAllTasksArea (this.model);
+
+        this.view.update(model);
     }
 
     public void actionPerformed (ActionEvent event) {
@@ -34,8 +35,30 @@ public class Controller implements ActionListener {
         }
 
         if (event.getActionCommand().equals(View.ACTION_UPDATE)) {
-            view.updateAllTasksArea(this.model);
+            this.view.update (this.model);
             System.out.println ("ok");
+        }
+
+        if (event.getActionCommand().equals(View.ACTION_ADD_TASK)) {
+            AddController temp = new AddController ();
+            AddEditForm dialog = new AddEditForm();
+            temp.setView(dialog);
+
+            dialog.setVisible(true);
+            if (temp.getTask() != null)
+                this.model.add(temp.getTask ());
+            this.view.update (this.model);
+        }
+
+        if (event.getActionCommand().equals(View.ACTION_SAVE_TASK)) {
+        }
+        if (event.getActionCommand().equals(View.ACTION_REMOVE_TASK)) {
+
+            if (model.size() > 0) {
+                model.remove( model.getTask( this.view.getIndexRemove() ) );
+            }
+
+            this.view.update(this.model);
         }
     }
 }

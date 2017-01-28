@@ -16,8 +16,5 @@ public class Manager {
         controller.setModel(model);
         controller.setView(view);
 
-        Task task = new Task ("football", new Date());
-        model.add (task);
-
     }
 }
