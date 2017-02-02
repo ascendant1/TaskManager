@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class SwingView extends JFrame implements View {
-    private List <ActionListener> listeners = new ArrayList <ActionListener> ();
+public abstract class SwingModalView extends JDialog implements ModalView {
+    private List<ActionListener> listeners = new ArrayList<ActionListener>();
 
     public void addActionListener (ActionListener al) {
         listeners.add (al);
@@ -20,10 +20,6 @@ public abstract class SwingView extends JFrame implements View {
         listeners.remove (al);
     }
 
-    //public abstract void update(TaskList model, SortedMap<Date, Set<Task>> map);
-
-    public abstract int getSelectedIndex ();
-
     protected void fireAction(String command) {
         ActionEvent event = new ActionEvent(this, 0, command);
         for (Iterator listener = listeners.iterator();
@@ -32,9 +28,6 @@ public abstract class SwingView extends JFrame implements View {
         }
     }
 
-    public JFrame getFrame() {
-        return this;
-    }
     public void close() {
         this.setVisible(false);
         this.dispose();

@@ -6,6 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 
 public class MainForm extends SwingView {
@@ -17,26 +21,40 @@ public class MainForm extends SwingView {
     private JButton addNewTaskButton;
     private JPanel panelMain;
     private DefaultListModel listModel = new DefaultListModel();
+    private DefaultListModel listCalendarModel = new DefaultListModel();
     private JList allTasksList;
     private JButton allTasksButton;
     private JButton quitButton;
     private JButton removeButton;
     private JButton detailsButton;
+    private JButton tasksCalendarButton;
+    private JTabbedPane tabbedPane;
+    private JList tasksCalendarList;
 
     public MainForm() {
         //создеам окно
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         this.setTitle(FRAME_TITLE);
-
+        this.setLocationRelativeTo(null);
         this.add(panelMain);
 
         this.setVisible(true);
 
         allTasksList.setModel(listModel);
+        tasksCalendarList.setModel(listCalendarModel);
+
         this.allTasksButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 fireAction(ACTION_UPDATE);
+                tabbedPane.setSelectedIndex(0);
+            }
+        });
+
+        tasksCalendarButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //fireAction(ACTION_CALENDAR);
+                tabbedPane.setSelectedIndex(1);
             }
         });
 
@@ -44,6 +62,12 @@ public class MainForm extends SwingView {
             public void actionPerformed(ActionEvent e) {
                 fireAction(ACTION_ADD_TASK);
 
+            }
+        });
+
+        this.detailsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                fireAction(ACTION_EDIT_TASK);
             }
         });
 
@@ -62,18 +86,31 @@ public class MainForm extends SwingView {
 
     }
 
-    public int getIndexRemove() {
+    public int getSelectedIndex() {
         return allTasksList.getSelectedIndex();
     }
 
-    //Обновить поле с тасками
-    public void update(TaskList model) {
+    //Обновить вид
+    public void update(TaskList model, SortedMap<Date, Set<Task>> map) {
+        //Обновить поле с тасками
         listModel.removeAllElements();
         if (model.size() == 0) {
             listModel.addElement("Task list is empty...");
         } else {
             for (Task task : model) {
                 listModel.addElement(task.toString());
+            }
+        }
+
+        //Обновить календарь с тасками
+        listCalendarModel.removeAllElements();
+        if (map.size() == 0) {
+            listCalendarModel.addElement("You have no tasks on this week");
+        } else {
+            for (Map.Entry<Date, Set<Task>> item : map.entrySet()) {
+                for (Task task : item.getValue()) {
+                    listCalendarModel.addElement(task.toString());
+                }
             }
         }
     }
@@ -94,26 +131,41 @@ public class MainForm extends SwingView {
      */
     private void $$$setupUI$$$() {
         panelMain = new JPanel();
-        panelMain.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(8, 2, new Insets(0, 0, 0, 0), -1, -1));
-        allTasksList = new JList();
-        panelMain.add(allTasksList, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 7, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(350, 50), null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
-        panelMain.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panelMain.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1));
+        allTasksButton = new JButton();
+        allTasksButton.setText("All Tasks List");
+        panelMain.add(allTasksButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(113, 32), null, 0, false));
         quitButton = new JButton();
         quitButton.setText("Quit");
-        panelMain.add(quitButton, new com.intellij.uiDesigner.core.GridConstraints(7, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        removeButton = new JButton();
-        removeButton.setText("Remove");
-        panelMain.add(removeButton, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        allTasksButton = new JButton();
-        allTasksButton.setText("All tasks");
-        panelMain.add(allTasksButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelMain.add(quitButton, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(113, 32), null, 0, false));
+        tabbedPane = new JTabbedPane();
+        panelMain.add(tabbedPane, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 6, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(700, 200), null, 0, false));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        tabbedPane.addTab("All tasks", panel1);
+        allTasksList = new JList();
+        panel1.add(allTasksList, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        tabbedPane.addTab("Tasks on week", panel2);
+        tasksCalendarList = new JList();
+        final DefaultListModel defaultListModel1 = new DefaultListModel();
+        tasksCalendarList.setModel(defaultListModel1);
+        panel2.add(tasksCalendarList, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
+        panelMain.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        tasksCalendarButton = new JButton();
+        tasksCalendarButton.setText("Tasks on week");
+        panelMain.add(tasksCalendarButton, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(113, 32), null, 0, false));
         addNewTaskButton = new JButton();
         addNewTaskButton.setText("Add new task");
-        panelMain.add(addNewTaskButton, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelMain.add(addNewTaskButton, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(113, 32), null, 0, false));
         detailsButton = new JButton();
         detailsButton.setText("Details");
-        panelMain.add(detailsButton, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelMain.add(detailsButton, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(113, 32), null, 0, false));
+        removeButton = new JButton();
+        removeButton.setText("Remove");
+        panelMain.add(removeButton, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(113, 17), null, 0, false));
     }
 
     /**
@@ -122,5 +174,20 @@ public class MainForm extends SwingView {
     public JComponent $$$getRootComponent$$$() {
         return panelMain;
     }
+
+    //Обновить поле с тасками
+    /*public void updateCalendar(SortedMap<Date, Set<Task>> map) {
+        listCalendarModel.removeAllElements();
+        if (map.size() == 0) {
+            listCalendarModel.addElement("You have no tasks on this week");
+        } else {
+            for (Map.Entry<Date, Set<Task>> item : map.entrySet()) {
+                for (Task task : item.getValue()) {
+                    listCalendarModel.addElement(task.toString());
+                }
+            }
+        }
+    }*/
+
 }
 

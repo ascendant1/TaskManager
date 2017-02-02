@@ -1,45 +1,49 @@
 package com.view;
 
-import com.model.TaskList;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Date;
 
-public abstract class ModalView extends JDialog implements View {
-    private List<ActionListener> listeners = new ArrayList<ActionListener>();
+public interface ModalView {
+    String ACTION_CLOSE = "close";
+    String ACTION_SAVE_TASK = "save";
+    String ACTION_REPEAT = "repeat";
+    String DATE_FORMAT = "yyyy.MM.dd HH:mm";
+    int MS = 1000;
+    int MINUTE = 60;
+    int HOUR = 60 * MINUTE;
+    int DAY = 24 * HOUR;
 
-    public void addActionListener (ActionListener al) {
-        listeners.add (al);
-    }
+    String getTitle ();
 
-    public void removeActionListener (ActionListener al) {
-        listeners.remove (al);
-    }
+    void setTitle (String title);
 
-    public abstract void update(TaskList model);
+    boolean getRepeated ();
 
-    protected void fireAction(String command) {
-        ActionEvent event = new ActionEvent(this, 0, command);
-        for (Iterator listener = listeners.iterator();
-             listener.hasNext();) {
-            ((ActionListener) listener.next()).actionPerformed(event);
-        }
-    }
+    void setRepeated (boolean flag);
 
-    public JFrame getFrame () {
-        return new JFrame();
-    }
+    boolean getActive ();
 
-    public void close() {
-        this.setVisible(false);
-        this.dispose();
-    }
+    void setActive (boolean flag);
 
-    public void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
+    Date getTime ();
+
+    void setTime (Date date);
+
+    Date getStartTime ();
+
+    Date getEndTime ();
+
+    int getInterval ();
+
+    void setInterval (int interval);
+
+    void setTime(Date startTime, Date endTime, int interval);
+
+    void addActionListener (ActionListener al);
+
+    void removeActionListener (ActionListener al);
+
+    void close ();
+
+    void showError (String message);
 }

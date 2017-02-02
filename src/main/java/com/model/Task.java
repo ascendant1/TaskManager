@@ -37,9 +37,8 @@ public class Task implements Cloneable, Serializable {
                     "start = " + start + ", end = " + end + ", interval = " + interval + ", title : " + title);
         }
 
-        if (start.after(end)) {
-            throw new IllegalArgumentException ("end time is less than start: start = " + start + " end = " + end);
-        }
+        if (start.compareTo(end) >= 0 || (end.getTime() - start.getTime()) < interval)
+            throw new IllegalArgumentException("End time should be larger than start time!");
 
         this.time = null;
         this.title = title;
@@ -65,7 +64,7 @@ public class Task implements Cloneable, Serializable {
         return repeat;
     }
 
-    boolean isActive () {
+    public boolean isActive () {
         return this.active;
     }
 
@@ -127,9 +126,8 @@ public class Task implements Cloneable, Serializable {
                     "start = " + start + ", end = " + end + ", interval = " + interval);
         }
 
-        if (start.after (end)) {
-            throw new IllegalArgumentException ("end time is less than start");
-        }
+        if (start.compareTo(end) >= 0 || (end.getTime() - start.getTime()) < interval)
+            throw new IllegalArgumentException("End time should be larger than start time!");
 
         if (isRepeated()) {
             this.start = start;
@@ -165,17 +163,22 @@ public class Task implements Cloneable, Serializable {
         }
 
         if (isActive()) {
-            if (isRepeated() && current.getTime() < this.end.getTime()) {
-                Date temp = (Date) this.start.clone();
-                while (temp.compareTo(current) <= 0) {
-                    temp.setTime(temp.getTime() + getRepeatInterval() * 1000);  // 1s = 1000ms
-                }
-                if (temp.getTime() <= this.end.getTime()) {
+            if (isRepeated() ) {
+                if (current.getTime() < this.end.getTime()) {
+                    Date temp = (Date) this.start.clone();
+                    while (temp.compareTo(current) <= 0) {
+                        temp.setTime(temp.getTime() + getRepeatInterval() * 1000);  // 1s = 1000ms
+                    }
+                    if (temp.getTime() <= this.end.getTime()) {
 
-                    return temp;
-                } else {
+                        return temp;
+                    } else {
+                        return null;
+                    }
+                }   else {
                     return null;
                 }
+
             } else if (current.getTime() < this.time.getTime()) {
                 return time;
             } else {

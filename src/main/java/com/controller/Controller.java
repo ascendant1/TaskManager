@@ -5,9 +5,7 @@ import com.view.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class Controller implements ActionListener {
 
@@ -23,7 +21,7 @@ public class Controller implements ActionListener {
         this.view = view;
         this.view.addActionListener (this);
 
-        this.view.update(model);
+        this.view.update (this.model, getCalendar());
     }
 
     public void actionPerformed (ActionEvent event) {
@@ -35,9 +33,14 @@ public class Controller implements ActionListener {
         }
 
         if (event.getActionCommand().equals(View.ACTION_UPDATE)) {
-            this.view.update (this.model);
-            System.out.println ("ok");
+            this.view.update (this.model, getCalendar());
+            //this.view.updateCalendar(Tasks.calendar(this.model, new Date (), new Date (new Date().getTime() + 7 * View.TIME_MS_DAY)));
         }
+
+        /*if (event.getActionCommand().equals(View.ACTION_CALENDAR)) {
+           // this.view.update(this.model, Tasks.calendar(this.model, new Date (), new Date (new Date().getTime() + 7 * View.TIME_MS_DAY)));
+            this.view.update (this.model, getCalendar());
+        }*/
 
         if (event.getActionCommand().equals(View.ACTION_ADD_TASK)) {
             AddController temp = new AddController ();
@@ -47,18 +50,40 @@ public class Controller implements ActionListener {
             dialog.setVisible(true);
             if (temp.getTask() != null)
                 this.model.add(temp.getTask ());
-            this.view.update (this.model);
+
+            this.view.update(this.model, getCalendar());
+
         }
 
-        if (event.getActionCommand().equals(View.ACTION_SAVE_TASK)) {
+        if (event.getActionCommand().equals(View.ACTION_EDIT_TASK)) {
+            try {
+                if (model.size() > 0) {
+                    AddController temp = new AddController(model.getTask(this.view.getSelectedIndex()));
+                    AddEditForm dialog = new AddEditForm();
+                    temp.setView(dialog);
+                    temp.updateView();
+                    dialog.setVisible(true);
+
+
+                    this.view.update (this.model, getCalendar());
+                }
+            }
+            catch (Exception e) {
+                this.view.showError(e.getMessage());
+            }
         }
+
         if (event.getActionCommand().equals(View.ACTION_REMOVE_TASK)) {
 
             if (model.size() > 0) {
-                model.remove( model.getTask( this.view.getIndexRemove() ) );
+                model.remove( model.getTask( this.view.getSelectedIndex() ) );
             }
 
-            this.view.update(this.model);
+            this.view.update (this.model, getCalendar());
         }
+    }
+
+    private SortedMap<Date, Set<Task>> getCalendar () {
+        return Tasks.calendar(this.model, new Date (), new Date (new Date().getTime() + 7 * View.TIME_MS_DAY));
     }
 }
