@@ -1,12 +1,12 @@
 package com.controller;
 
-import com.model.Task;
+import com.tasks.Task;
 import com.view.ModalView;
 
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
+
 
 public class AddController implements ActionListener {
     private Task task;
@@ -17,7 +17,7 @@ public class AddController implements ActionListener {
 
     }
 
-    public AddController (Task task) {
+    public void setTask (Task task) {
         this.task = task;
     }
 
@@ -25,20 +25,25 @@ public class AddController implements ActionListener {
         this.view = view;
 
         this.view.addActionListener(this);
-
     }
 
+    public void restart () {
+        this.task = null;
+    }
     public void actionPerformed (ActionEvent event) {
         ModalView view = (ModalView) event.getSource();
 
         if( event.getActionCommand().equals (ModalView.ACTION_CLOSE) ) {
-            this.view.close ();
+            this.view.close();
+
+
         }
 
-        if (event.getActionCommand().equals (ModalView.ACTION_SAVE_TASK)) {
+        else if (event.getActionCommand().equals (ModalView.ACTION_SAVE_TASK)) {
             try {
                 if (task == null) {
                     addTask();
+
                 }
                 else {
                     editTask();

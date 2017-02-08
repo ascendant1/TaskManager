@@ -1,16 +1,13 @@
 package com.view;
 
-import com.model.TaskList;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-public abstract class SwingView extends JFrame implements View {
+public abstract class SwingView implements View {
     private List <ActionListener> listeners = new ArrayList <ActionListener> ();
+    protected JFrame frame = new JFrame ();
 
     public void addActionListener (ActionListener al) {
         listeners.add (al);
@@ -20,10 +17,6 @@ public abstract class SwingView extends JFrame implements View {
         listeners.remove (al);
     }
 
-    //public abstract void update(TaskList model, SortedMap<Date, Set<Task>> map);
-
-    public abstract int getSelectedIndex ();
-
     protected void fireAction(String command) {
         ActionEvent event = new ActionEvent(this, 0, command);
         for (Iterator listener = listeners.iterator();
@@ -32,15 +25,13 @@ public abstract class SwingView extends JFrame implements View {
         }
     }
 
-    public JFrame getFrame() {
-        return this;
-    }
-    public void close() {
-        this.setVisible(false);
-        this.dispose();
-    }
+    public abstract void close ();
 
     public void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void showMessage (String message) {
+        JOptionPane.showMessageDialog(frame, message, "Reminder", JOptionPane.INFORMATION_MESSAGE);
     }
 }

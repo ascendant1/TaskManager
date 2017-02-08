@@ -3,12 +3,9 @@ package com.view;
 import java.awt.event.ActionListener;
 import java.util.Date;
 
-public interface ModalView {
-    String ACTION_CLOSE = "close";
+public interface ModalView extends View{
     String ACTION_SAVE_TASK = "save";
-    String ACTION_REPEAT = "repeat";
     String DATE_FORMAT = "yyyy.MM.dd HH:mm";
-    int MS = 1000;
     int MINUTE = 60;
     int HOUR = 60 * MINUTE;
     int DAY = 24 * HOUR;
@@ -39,11 +36,7 @@ public interface ModalView {
 
     void setTime(Date startTime, Date endTime, int interval);
 
-    void addActionListener (ActionListener al);
+    void createDialog ();
 
-    void removeActionListener (ActionListener al);
-
-    void close ();
-
-    void showError (String message);
+    void setVisible (boolean flag);
 }

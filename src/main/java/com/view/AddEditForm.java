@@ -6,8 +6,7 @@ import java.awt.event.*;
 import java.util.Date;
 
 public class AddEditForm extends SwingModalView {
-    private static final int DIALOG_WIDTH = 450;
-    private static final int DIALOG_HEIGHT = 300;
+
     private static final int DAYS = 1000;
     private static final int HOURS = 23;
     private static final int MINUTES = 59;
@@ -26,13 +25,11 @@ public class AddEditForm extends SwingModalView {
     private JSpinner intervalHoursField;
     private JPanel intervalPanel;
 
-    public AddEditForm() {
-
-        setContentPane(contentPane);
-        setModal(true);
-        setResizable(false);
-        setSize(new Dimension(DIALOG_WIDTH, DIALOG_HEIGHT));
-        setLocationRelativeTo(null);
+    public AddEditForm(JFrame frame) {
+        super(frame);
+        createDialog();
+        dialog.setContentPane(contentPane);
+        dialog.setResizable(false);
 
         startTimeField.setEnabled(false);
         endTimeField.setEnabled(false);
@@ -43,7 +40,7 @@ public class AddEditForm extends SwingModalView {
         setTimeSpinner(endTimeField);
 
 
-        getRootPane().setDefaultButton(buttonSave);
+        dialog.getRootPane().setDefaultButton(buttonSave);
 
         buttonSave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -74,8 +71,8 @@ public class AddEditForm extends SwingModalView {
         });
 
         // call onCancel() when cross is clicked
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
@@ -178,11 +175,11 @@ public class AddEditForm extends SwingModalView {
 
     private void onSave() {
         fireAction(ModalView.ACTION_SAVE_TASK);
-        dispose();
+        dialog.dispose();
     }
 
     private void onCancel() {
-        dispose();
+        dialog.dispose();
     }
 
     {

@@ -5,67 +5,92 @@ import com.view.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 
 public class Controller implements ActionListener {
 
-    private TaskList model;
-    private View view;
+    private Model model;
+    private MainView view;
+    //private ModalView modalView;
+    private AddController addController;
 
-    public void setModel (TaskList model) {
+    public void setModel (Model model) {
         this.model = model;
+        Data data = new DataSave ();
+        try {
+            data.upload(this.model, new File (Data.FILE_DATA));
+        }
+        catch (IOException e) {
+            System.out.println("upload dont work");
+        }
+        catch (ClassNotFoundException e) {
+
+        }
+
     }
 
+    public void saveModel () {
+        Data data = new DataSave ();
 
-    public void setView (View view) {
+        try {
+            data.unload(this.model, new File (Data.FILE_DATA));
+        }
+        catch (IOException e) {
+            System.out.println("save dont work");
+        }
+    }
+
+    public void setView (MainView view) {
         this.view = view;
         this.view.addActionListener (this);
 
-        this.view.update (this.model, getCalendar());
+        addController  = new AddController();
+
+        this.view.update (this.model);
     }
 
     public void actionPerformed (ActionEvent event) {
-        View view = (View) event.getSource();
+        MainView view = (MainView) event.getSource();
 
         if( event.getActionCommand().equals (View.ACTION_CLOSE) ) {
+            saveModel();
             view.close ();
             System.exit (0);
         }
 
-        if (event.getActionCommand().equals(View.ACTION_UPDATE)) {
-            this.view.update (this.model, getCalendar());
-            //this.view.updateCalendar(Tasks.calendar(this.model, new Date (), new Date (new Date().getTime() + 7 * View.TIME_MS_DAY)));
-        }
-
-        /*if (event.getActionCommand().equals(View.ACTION_CALENDAR)) {
-           // this.view.update(this.model, Tasks.calendar(this.model, new Date (), new Date (new Date().getTime() + 7 * View.TIME_MS_DAY)));
-            this.view.update (this.model, getCalendar());
-        }*/
-
-        if (event.getActionCommand().equals(View.ACTION_ADD_TASK)) {
-            AddController temp = new AddController ();
-            AddEditForm dialog = new AddEditForm();
-            temp.setView(dialog);
-
-            dialog.setVisible(true);
-            if (temp.getTask() != null)
-                this.model.add(temp.getTask ());
-
-            this.view.update(this.model, getCalendar());
+        else if (event.getActionCommand().equals(View.ACTION_UPDATE)) {
+            this.view.update (this.model);
 
         }
 
-        if (event.getActionCommand().equals(View.ACTION_EDIT_TASK)) {
+        else if (event.getActionCommand().equals(View.ACTION_ADD_TASK)) {
+            ModalView modalView = new AddEditForm(this.view.getFrame());
+            addController.setView(modalView);
+
+            modalView.setVisible(true);
+
+            if (addController.getTask() != null)
+                this.model.add(addController.getTask ());
+
+            addController.restart();
+            this.view.update(this.model);
+
+        }
+
+        else if (event.getActionCommand().equals(View.ACTION_EDIT_TASK)) {
             try {
                 if (model.size() > 0) {
-                    AddController temp = new AddController(model.getTask(this.view.getSelectedIndex()));
-                    AddEditForm dialog = new AddEditForm();
-                    temp.setView(dialog);
-                    temp.updateView();
-                    dialog.setVisible(true);
+                    ModalView modalView = new AddEditForm(this.view.getFrame());
+                    addController.setTask(this.model.getTask(this.view.getSelectedIndex()));
+                    addController.setView(modalView);
+                    addController.updateView();
 
+                    modalView.setVisible(true);
 
-                    this.view.update (this.model, getCalendar());
+                    addController.restart();
+                    this.view.update (this.model);
                 }
             }
             catch (Exception e) {
@@ -73,17 +98,25 @@ public class Controller implements ActionListener {
             }
         }
 
-        if (event.getActionCommand().equals(View.ACTION_REMOVE_TASK)) {
+        else if (event.getActionCommand().equals(View.ACTION_REMOVE_TASK)) {
 
             if (model.size() > 0) {
                 model.remove( model.getTask( this.view.getSelectedIndex() ) );
             }
 
-            this.view.update (this.model, getCalendar());
+            this.view.update (this.model);
         }
     }
 
-    private SortedMap<Date, Set<Task>> getCalendar () {
-        return Tasks.calendar(this.model, new Date (), new Date (new Date().getTime() + 7 * View.TIME_MS_DAY));
+    public Model getModel () {
+        return this.model;
+    }
+
+    public void update () {
+        this.view.update(this.model);
+    }
+
+    public void showMessage (String string) {
+        this.view.showMessage (string);
     }
 }

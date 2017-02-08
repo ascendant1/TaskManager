@@ -1,21 +1,24 @@
 package com.controller;
 
-import com.model.LinkedTaskList;
-import com.model.Task;
-import com.model.TaskList;
+import com.model.*;
 import com.view.MainForm;
-import com.view.View;
+import com.view.MainView;
+import org.apache.log4j.Logger;
 
-import java.util.Date;
 
 public class Manager {
+    public static Logger logger = Logger.getLogger(Manager.class);
+
     public static void main(String[] args) {
+        logger.info ("Start the work");
         Controller controller = new Controller ();
-        TaskList model = new LinkedTaskList();
-        MainForm view = new MainForm ();
+        Model model = new Model();
+        MainView view = new MainForm();
 
         controller.setModel(model);
         controller.setView(view);
 
+        Notifier notifier = new Notifier (controller);
+        notifier.run ();
     }
 }
