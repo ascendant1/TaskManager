@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 
+import static com.controller.Manager.logger;
+
 public class Controller implements ActionListener {
 
     private Model model;
@@ -57,12 +59,13 @@ public class Controller implements ActionListener {
         if( event.getActionCommand().equals (View.ACTION_CLOSE) ) {
             saveModel();
             view.close ();
+            logger.info ("End the work!");
             System.exit (0);
         }
 
         else if (event.getActionCommand().equals(View.ACTION_UPDATE)) {
             this.view.update (this.model);
-
+            logger.info ("View updated");
         }
 
         else if (event.getActionCommand().equals(View.ACTION_ADD_TASK)) {
@@ -71,8 +74,10 @@ public class Controller implements ActionListener {
 
             modalView.setVisible(true);
 
-            if (addController.getTask() != null)
-                this.model.add(addController.getTask ());
+            if (addController.getTask() != null) {
+                this.model.add(addController.getTask());
+                logger.info("\"" + addController.getTask().getTitle() + "\"" + " successfully added to the model.");
+            }
 
             addController.restart();
             this.view.update(this.model);
@@ -93,15 +98,19 @@ public class Controller implements ActionListener {
                     this.view.update (this.model);
                 }
             }
-            catch (Exception e) {
+            catch (ModelException e) {
                 this.view.showError(e.getMessage());
             }
         }
 
         else if (event.getActionCommand().equals(View.ACTION_REMOVE_TASK)) {
-
-            if (model.size() > 0) {
-                model.remove( model.getTask( this.view.getSelectedIndex() ) );
+            try {
+                if (model.size() > 0) {
+                    model.remove(model.getTask(this.view.getSelectedIndex()));
+                }
+            }
+            catch (ModelException e) {
+                this.view.showError(e.getMessage());
             }
 
             this.view.update (this.model);

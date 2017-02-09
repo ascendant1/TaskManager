@@ -20,6 +20,7 @@ public class Model {
     }
 
     public void add (Task task) {
+
         this.model.add(task);
     }
 
@@ -27,7 +28,9 @@ public class Model {
         return this.model.remove(task);
     }
 
-    public Task getTask (int index) {
+    public Task getTask (int index) throws ModelException{
+        if (index < 0 || index >= size())
+            throw new ModelException("You don`t choose the task!");
         return this.model.getTask(index);
     }
 

@@ -7,6 +7,8 @@ import com.view.ModalView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static com.controller.Manager.logger;
+
 
 public class AddController implements ActionListener {
     private Task task;
@@ -35,18 +37,17 @@ public class AddController implements ActionListener {
 
         if( event.getActionCommand().equals (ModalView.ACTION_CLOSE) ) {
             this.view.close();
-
-
+            logger.info ("Add/edit dialog closed without save.");
         }
 
         else if (event.getActionCommand().equals (ModalView.ACTION_SAVE_TASK)) {
             try {
                 if (task == null) {
                     addTask();
-
                 }
                 else {
                     editTask();
+                    logger.info ("Task "  + "\"" + this.task.getTitle() + "\'" + " have been changed.");
                 }
                 this.view.close();
             }
