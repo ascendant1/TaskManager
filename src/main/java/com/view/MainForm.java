@@ -89,7 +89,6 @@ public class MainForm extends SwingMainView {
             }
         });
 
-
     }
 
     public JFrame getFrame() {
