@@ -1,8 +1,6 @@
 package com.view;
 
 import com.model.Model;
-
-import javax.swing.*;
 import java.awt.event.*;
 
 public interface View {
@@ -20,6 +18,8 @@ public interface View {
     //Методы управления видом
 
     void close ();
+
+    void update (Model model);
 
     void showError (String message);
 

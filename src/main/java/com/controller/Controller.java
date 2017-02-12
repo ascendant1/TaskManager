@@ -1,22 +1,19 @@
 package com.controller;
 
 import com.model.*;
+import com.tasks.Task;
 import com.view.*;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-
 import static com.controller.Manager.logger;
 
 public class Controller implements ActionListener {
 
     private Model model;
     private MainView view;
-    //private ModalView modalView;
-    private AddController addController;
+    private ModalView modalView;
 
     public void setModel (Model model) {
         this.model = model;
@@ -25,7 +22,7 @@ public class Controller implements ActionListener {
             data.upload(this.model, new File (Data.FILE_DATA));
         }
         catch (IOException e) {
-            System.out.println("upload dont work");
+            logger.warn ("upload don`t work!");
         }
         catch (ClassNotFoundException e) {
 
@@ -40,7 +37,7 @@ public class Controller implements ActionListener {
             data.unload(this.model, new File (Data.FILE_DATA));
         }
         catch (IOException e) {
-            System.out.println("save dont work");
+            logger.warn("save don`t work");
         }
     }
 
@@ -48,13 +45,11 @@ public class Controller implements ActionListener {
         this.view = view;
         this.view.addActionListener (this);
 
-        addController  = new AddController();
-
         this.view.update (this.model);
     }
 
     public void actionPerformed (ActionEvent event) {
-        MainView view = (MainView) event.getSource();
+        View view = (View) event.getSource();
 
         if( event.getActionCommand().equals (View.ACTION_CLOSE) ) {
             saveModel();
@@ -69,38 +64,35 @@ public class Controller implements ActionListener {
         }
 
         else if (event.getActionCommand().equals(View.ACTION_ADD_TASK)) {
-            ModalView modalView = new AddEditForm(this.view.getFrame());
-            addController.setView(modalView);
-
+            this.modalView = new AddEditForm(this.view.getFrame());
+            modalView.addActionListener (this);
+            logger.info ("Modal view created.");
             modalView.setVisible(true);
+            logger.info ("Modal view visible");
 
-            if (addController.getTask() != null) {
-                this.model.add(addController.getTask());
-                logger.info("\"" + addController.getTask().getTitle() + "\"" + " successfully added to the model.");
+            if (model.getTask() != null) {
+                this.model.add();
             }
-
-            addController.restart();
             this.view.update(this.model);
-
         }
 
         else if (event.getActionCommand().equals(View.ACTION_EDIT_TASK)) {
+            logger.info ("Enter to edit task.");
+            modalView = new AddEditForm(this.view.getFrame());
+
             try {
-                if (model.size() > 0) {
-                    ModalView modalView = new AddEditForm(this.view.getFrame());
-                    addController.setTask(this.model.getTask(this.view.getSelectedIndex()));
-                    addController.setView(modalView);
-                    addController.updateView();
-
-                    modalView.setVisible(true);
-
-                    addController.restart();
-                    this.view.update (this.model);
-                }
+                model.setTask(model.getTask(this.view.getSelectedIndex()));
             }
             catch (ModelException e) {
                 this.view.showError(e.getMessage());
             }
+
+            modalView.update (model);
+            modalView.addActionListener(this);
+
+            modalView.setVisible (true);
+
+            this.view.update (model);
         }
 
         else if (event.getActionCommand().equals(View.ACTION_REMOVE_TASK)) {
@@ -114,6 +106,27 @@ public class Controller implements ActionListener {
             }
 
             this.view.update (this.model);
+        }
+
+        else if (event.getActionCommand().equals(ModalView.ACTION_SAVE_TASK)) {
+            model.setTask(new Task());
+            try {
+                model.setTitle(this.modalView.getTitle());
+                if (this.modalView.getRepeated()) {
+                    model.setTime(this.modalView.getStartTime(),
+                            this.modalView.getEndTime(),
+                            this.modalView.getInterval());
+                } else {
+                    model.setTime(this.modalView.getTime());
+                }
+                model.setActive(this.modalView.getActive());
+
+                logger.info ("\"" + model.getTask().getTitle() + "\"" + " start time: " + model.getTask().getStartTime() + " added!");
+                this.modalView.close ();
+
+            } catch (ModelException e) {
+                modalView.showError(e.getMessage());
+            }
         }
     }
 

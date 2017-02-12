@@ -1,7 +1,6 @@
 package com.view;
 
 import com.model.Model;
-
 import javax.swing.*;
 
 public abstract class SwingMainView extends SwingView implements MainView{

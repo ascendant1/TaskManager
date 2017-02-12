@@ -1,10 +1,10 @@
 package com.view;
 
-import java.awt.event.ActionListener;
 import java.util.Date;
 
 public interface ModalView extends View{
     String ACTION_SAVE_TASK = "save";
+    String ACTION_CLOSE_MODAL = "closemodal";
     String DATE_FORMAT = "yyyy.MM.dd HH:mm";
     int MINUTE = 60;
     int HOUR = 60 * MINUTE;
