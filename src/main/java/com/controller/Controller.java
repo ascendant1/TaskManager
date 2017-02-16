@@ -68,11 +68,8 @@ public class Controller implements ActionListener {
             modalView.addActionListener (this);
             logger.info ("Modal view created.");
             modalView.setVisible(true);
-            logger.info ("Modal view visible");
+            logger.info ("Modal view visible.");
 
-            if (model.getTask() != null) {
-                this.model.add();
-            }
             this.view.update(this.model);
         }
 
@@ -80,19 +77,22 @@ public class Controller implements ActionListener {
             logger.info ("Enter to edit task.");
             modalView = new AddEditForm(this.view.getFrame());
 
-            try {
-                model.setTask(model.getTask(this.view.getSelectedIndex()));
+            if (this.view.getSelectedIndex() >= 0 && model.size() > 0) {
+                try {
+                    model.setTask(model.getTask(this.view.getSelectedIndex()));
+                } catch (ModelException e) {
+                    this.view.showError(e.getMessage());
+                }
+
+                modalView.update(model);
+                modalView.addActionListener(this);
+
+                modalView.setVisible(true);
+
+                this.view.update(model);
+            } else {
+                this.view.showError("At first, select the task!");
             }
-            catch (ModelException e) {
-                this.view.showError(e.getMessage());
-            }
-
-            modalView.update (model);
-            modalView.addActionListener(this);
-
-            modalView.setVisible (true);
-
-            this.view.update (model);
         }
 
         else if (event.getActionCommand().equals(View.ACTION_REMOVE_TASK)) {
@@ -109,7 +109,15 @@ public class Controller implements ActionListener {
         }
 
         else if (event.getActionCommand().equals(ModalView.ACTION_SAVE_TASK)) {
-            model.setTask(new Task());
+            boolean edit = false;
+            if (model.getTask() == null) {
+                model.setTask (new Task ());
+                logger.info ("Add new task");
+            }
+            else {
+                edit = true;
+                logger.info ("Edit task");
+            }
             try {
                 model.setTitle(this.modalView.getTitle());
                 if (this.modalView.getRepeated()) {
@@ -121,12 +129,21 @@ public class Controller implements ActionListener {
                 }
                 model.setActive(this.modalView.getActive());
 
-                logger.info ("\"" + model.getTask().getTitle() + "\"" + " start time: " + model.getTask().getStartTime() + " added!");
+                if (!edit) {
+                    this.model.add();
+                    logger.info ("\"" + model.getTask().getTitle() + "\"" + " start time: " + model.getTask().getStartTime() + " added!");
+                } else {
+                    logger.info ("\"" + model.getTask().getTitle() + "\"" + " start time: " + model.getTask().getStartTime() + " added!");
+                }
+
+
                 this.modalView.close ();
 
             } catch (ModelException e) {
                 modalView.showError(e.getMessage());
             }
+
+            model.setTask (null);
         }
     }
 

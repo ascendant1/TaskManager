@@ -24,6 +24,9 @@ public class Model {
         this.task = task;
     }
 
+    public void editTask (Task task) {
+
+    }
     public void setTitle (String title) throws ModelException {
         if (title.equals("")) {
             throw new ModelException ("Title field is empty");
