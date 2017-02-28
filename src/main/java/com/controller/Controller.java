@@ -3,13 +3,14 @@ package com.controller;
 import com.model.*;
 import com.tasks.Task;
 import com.view.*;
+import org.apache.log4j.Logger;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import static com.controller.Manager.logger;
 
 public class Controller implements ActionListener {
+    private static final Logger logger = Logger.getLogger(Controller.class);
 
     private Model model;
     private MainView view;
@@ -22,10 +23,10 @@ public class Controller implements ActionListener {
             data.upload(this.model, new File (Data.FILE_DATA));
         }
         catch (IOException e) {
-            logger.warn ("upload don`t work!");
+            logger.error ("Upload don`t work!");
         }
         catch (ClassNotFoundException e) {
-
+            logger.error ("Upload don`t work!");
         }
 
     }
@@ -37,7 +38,7 @@ public class Controller implements ActionListener {
             data.unload(this.model, new File (Data.FILE_DATA));
         }
         catch (IOException e) {
-            logger.warn("save don`t work");
+            logger.error("Save don`t work");
         }
     }
 
@@ -54,7 +55,7 @@ public class Controller implements ActionListener {
         if( event.getActionCommand().equals (View.ACTION_CLOSE) ) {
             saveModel();
             view.close ();
-            logger.info ("End the work!");
+            logger.info ("End of work!");
             System.exit (0);
         }
 
@@ -82,13 +83,15 @@ public class Controller implements ActionListener {
                     model.setTask(model.getTask(this.view.getSelectedIndex()));
                 } catch (ModelException e) {
                     this.view.showError(e.getMessage());
+                    logger.warn ("Don`t selected item!");
                 }
 
                 modalView.update(model);
+                logger.info("View updated.");
                 modalView.addActionListener(this);
 
                 modalView.setVisible(true);
-
+                logger.info("Modal view visible.");
                 this.view.update(model);
             } else {
                 this.view.showError("At first, select the task!");
@@ -99,13 +102,16 @@ public class Controller implements ActionListener {
             try {
                 if (model.size() > 0) {
                     model.remove(model.getTask(this.view.getSelectedIndex()));
+                    logger.info("Task successfully removed!");
                 }
             }
             catch (ModelException e) {
                 this.view.showError(e.getMessage());
+                logger.warn("Task don`t selected!");
             }
 
             this.view.update (this.model);
+            logger.info ("View updated!");
         }
 
         else if (event.getActionCommand().equals(ModalView.ACTION_SAVE_TASK)) {
@@ -133,7 +139,7 @@ public class Controller implements ActionListener {
                     this.model.add();
                     logger.info ("\"" + model.getTask().getTitle() + "\"" + " start time: " + model.getTask().getStartTime() + " added!");
                 } else {
-                    logger.info ("\"" + model.getTask().getTitle() + "\"" + " start time: " + model.getTask().getStartTime() + " added!");
+                    logger.info ("\"" + model.getTask().getTitle() + "\"" + " start time: " + model.getTask().getStartTime() + " changed!");
                 }
 
 

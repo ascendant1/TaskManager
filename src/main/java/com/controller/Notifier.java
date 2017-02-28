@@ -1,11 +1,12 @@
 package com.controller;
 
-import com.model.Model;
 import com.tasks.Task;
-
+import org.apache.log4j.Logger;
 import java.util.Date;
 
 public class Notifier extends Controller implements Runnable{
+    private static final Logger logger = Logger.getLogger(Notifier.class);
+
     public static final long CHECK_TIME = 10000;
 
     private Controller controller;
@@ -36,19 +37,20 @@ public class Notifier extends Controller implements Runnable{
         }
         else {
             task.setActive(false);
-            //controller.update();
         }
 
         if (task.isActive()) {
             if (task.isRepeated()) {
                 if (Math.abs (task.nextTimeAfter(new Date()).getTime() - System.currentTimeMillis()) < CHECK_TIME ) {
                     controller.showMessage ("It`s time for " + "\"" + task.getTitle() + "\"" + " !");
+                    logger.info("Notifier - "+ "\"" + task.getTitle() + "\"");
                 }
             }
             else {
                 if ( Math.abs(task.getTime().getTime() - System.currentTimeMillis()) < CHECK_TIME ) {
                     controller.showMessage ("It`s time for " + "\"" + task.getTitle() + "\"" + " !");
                     task.setActive(false);
+                    logger.info("Notifier - " + "\"" + task.getTitle() + "\"");
                 }
             }
         }
